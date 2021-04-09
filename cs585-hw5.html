@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Tabitha's Submission</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
+
+<body>
+    <div class="container-fluid">
+        <p>CS 585 HW5</p>
+        <p>Name: Tabitha Oanda</p>
+        <p>Teammates: Justin Janice, Praneeth Chandra Bogineni</p>
+        <p>Date: 09/04/2020</p>
+        <hr>
+        <div class="row justify-content-center align-items-center">
+            <p><strong>Problem Definition</strong></p>
+            <p>The task requires our computer vision algorithm to localize and segment the different objects in a frame.
+                After getting the coordinates of the various objects we use a Kalman filter to track their motion
+                through out the frames.
+            <p>
+        </div>
+        <hr>
+
+
+
+        <div class="row justify-content-center align-items-center">
+            <p><strong>Experiments</strong></p>
+            <video id="example_video_1" class="video-js vjs-default-skin" width="800" height="400" src="bats.mp4"
+                type='video/mp4' autoplay>
+
+                <p></p>
+
+                <hr>
+        </div>
+
+        <div class="row justify-content-center align-items-center">
+            <p><strong>Cells : No Process Noise</strong></p>
+            <video id="example_video_2" class="video-js vjs-default-skin" width="800" height="400" src="cells.mp4"
+                type='video/mp4' autoplay>
+
+                <p></p>
+
+                <hr>
+        </div>
+        <div class="row justify-content-center align-items-center">
+            <p><strong>Cells : With Process Noise</strong></p>
+            <video id="example_video_3" class="video-js vjs-default-skin" width="800" height="400"
+                src="cells_processNoise.mp4" type='video/mp4' autoplay>
+
+                <p></p>
+
+                <hr>
+        </div>
+
+        <div class="row justify-content-center align-items-center">
+            <p><strong>Success and Challenges</strong></p>
+            <ul>Bats Experiment.</ul>
+            <p>We were able to track most of the bats across multiple frames and draw smooth trajectories. A challenge
+                that
+                appears is when bats fly faster than the 'norm' it becomes difficult to track them.</p>
+            <ul>Cells Experiment.</ul>
+            <p>When we analyzed the frames without factoring in the process noise covariance matrix we were able to
+                track the objects but it was very noisy (As seen in cells video 1). When we included the process noise
+                covariance matrix we noticed that fewer objects were tracked across time but the ones that were tracked
+                had more consistent trajectories (paths were longer). </p>
+        </div>
+
+
+        <div class="row justify-content-center align-items-center">
+            <p><strong>Method and Implementation</strong></p>
+            <ul><strong> Localization and Segmentation</strong> </ul>
+            <p>For the bats dataset we used the localization and segmentation provides by the instructors. For the cell
+                dataset we converted the grayscale images to binary using thresholding. We did some erosion and dilation
+                on the cells to make them more distinct. We run a contouring algorithm and averaged the x and y values
+                of each contour to get the x and y coordinates of the cells.</p>
+            <hr>
+
+            <ul><strong>New Tracks and Missing Objects.</strong></ul>
+            <p>New Tracks: A track is created for every localized object in the first frame. As we move into successive
+                frames we'll
+                match each the objects from the previous frame if the cost function is below a certain threshold. If
+                there are objects in the current frame that are unmatched, we create new kalman filter objects for them
+                and add them to our group of objects that we're tracking
+                (hoping we'll match them to a corresponding object in the next frame).
+            </p>
+            <p>Missing objects: If we have an estimate for the position of an object from a previous frame and we cannot
+                find the corresponding measurements on the current frame we will maintain the estimate as the
+                measurement. We will increase its missing count by 1. If an object is missing for a number of frames
+                that exceeds our 'missing' threshold then we declare it missing officially and take it out of our
+                objects list.
+            </p>
+
+            <ul><strong>Occlusion and Path Crossing</strong> </ul>
+            <p>
+                When two or more objects cross paths and sometimes occlude each other, the filter maintains an estimate
+                of their position based on the previous frames. It would update this estimate based on the object that
+                minimizes the cost. However, as the objects continue to move and the objects become more distinct then
+                the filter is able to follow the original object like before.
+            </p>
+            <ul><strong>Spurious Measurements</strong> </ul>
+            <p>
+                The draw function in our Kalman filter class only draws object tracks that have a history greater than a
+                certain threshold. Spurious measurements are in view for a short time (a few frames) and so their
+                history would not exceed the threshold and their paths wouldn't get drawn. Additionally, spurious
+                measurements would disappear from the field of view long enough for them to go 'missing' and be removed
+                from our group tracked object.
+            </p>
+
+            <ul><strong>Advantages/Drawbacks of the Kalman Filter</strong> </ul>
+            <p>The Kalman Filter works well for the bats because they follow a predictable trajectory. I think getting
+                the velocity of the bats would make it even more accurate. In cases where there is occlusion having more
+                measurements than just position would help determine the position and calculate the cost for assignment
+                purposes.</p>
+            <p>I dont think that the cells experiment would benefit from adding velocity because their movement pattern
+                is quite erratic.</p>
+    
+        </div>
+
+        <div class="row justify-content-center align-items-center">
+            <p><strong>How to Run:</strong></p>
+            <ul>Bats Experiment.
+                Use mot.ipynb, the video will play in realtime.</ul>
+            <ul>Cells Experiment. Use mot2.ipynb, your output will be in the cellResults folder.</ul>
+
+        </div>
+
+    </div>
+
+    <div class="row justify-content-center align-items-center">
+        <p><strong>Credits</strong></p>
+
+        <p>
+            OpenCV. (n.d.). Kalman Filter. Retrieved April 09, 2021, from
+            https://docs.opencv.org/master/dd/d6a/classcv_1_1KalmanFilter.html
+        </p>
+        <p>
+            roboteck: Opencv-kalman-filter-mouse-tracking
+            https://github.com/roboteck/Opencv-kalman-filter-mouse-tracking/blob/master/main.cpp
+        </p>
+    </div>
+
+    </div>
+
+
+
+</body>
